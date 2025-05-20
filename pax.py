@@ -1,5 +1,6 @@
 import sys
 from paxlib.repo import init_repo
+from paxlib.hash_object import hash_object
 
 def main():
     if len(sys.argv) < 2:
@@ -10,6 +11,12 @@ def main():
 
     if command == "init":
         init_repo()
+    
+    elif command == "hash-object":
+        if len(sys.argv) < 3:
+            print("Usage: pax hash-object <file>")
+        else:
+            hash_object(sys.argv[2]) 
     else:
         print(f"Unknown command: {command}")
 

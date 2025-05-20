@@ -1,4 +1,5 @@
 # why tf am i using git to make another git XD
 
 venv/
+__pycache__/
 .pax/
