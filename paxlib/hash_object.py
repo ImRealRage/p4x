@@ -24,3 +24,4 @@ def hash_object(file_path):
         f.write(zlib.compress(full_data))
 
     print(sha1)
+    return sha1 
