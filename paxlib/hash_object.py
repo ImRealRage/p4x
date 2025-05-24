@@ -4,37 +4,40 @@ import zlib
 
 PAX_DIR = ".pax"
 
-def hash_object(file_path):
+def hash_object(file_path, obj_type="blob"):
     """
-    Hashes a file and stores it in the .pax/objects directory.
+    Hash a file and store it as a Pax object.
+
+    This function reads the content of the specified file, constructs a
+    header with the given object type and file size, and computes the SHA1
+    hash of the combined header and file content. The resulting SHA1 hash
+    is used to store the compressed file data in the Pax object directory.
 
     Parameters
     ----------
     file_path : str
-        The path to the file to hash.
+        The path to the file to be hashed.
+    obj_type : str, optional
+        The type of the object (e.g., "blob", "tree"). Defaults to "blob".
 
     Returns
     -------
     str
-        The SHA1 of the file.
+        The SHA1 hash of the stored object.
     """
     with open(file_path, "rb") as f:
         data = f.read()
 
-    header = f"blob {len(data)}\0".encode()
+    header = f"{obj_type} {len(data)}".encode() + b"\0"
     full_data = header + data
 
     sha1 = hashlib.sha1(full_data).hexdigest()
 
-    # Split into directory and file: objects/ab/cdef...
-    dir_name = os.path.join(PAX_DIR, "objects", sha1[:2])
+    dir_name = os.path.join(".pax", "objects", sha1[:2])
     file_name = sha1[2:]
-
     os.makedirs(dir_name, exist_ok=True)
-    object_path = os.path.join(dir_name, file_name)
 
-    with open(object_path, "wb") as f:
-        f.write(zlib.compress(full_data))
+    with open(os.path.join(dir_name, file_name), "wb") as out:
+        out.write(zlib.compress(full_data))
 
-    print(sha1)
-    return sha1 
+    return sha1
