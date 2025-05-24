@@ -5,6 +5,19 @@ import zlib
 PAX_DIR = ".pax"
 
 def hash_object(file_path):
+    """
+    Hashes a file and stores it in the .pax/objects directory.
+
+    Parameters
+    ----------
+    file_path : str
+        The path to the file to hash.
+
+    Returns
+    -------
+    str
+        The SHA1 of the file.
+    """
     with open(file_path, "rb") as f:
         data = f.read()
 
