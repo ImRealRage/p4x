@@ -3,6 +3,8 @@ from paxlib.repo import init_repo
 from paxlib.hash_object import hash_object
 from paxlib.write_tree import write_tree
 from paxlib.commit_tree import commit_tree
+from paxlib.log import log
+
 
 def main():
     if len(sys.argv) < 2:
@@ -33,6 +35,12 @@ def main():
                 print("Usage: pax commit-tree <tree-hash> -m \"message\"")
         except IndexError:
             print("Usage: pax commit-tree <tree-hash> -m \"message\"")
+            
+    elif command == "log":
+        if len(sys.argv) < 3:
+            print("Usage: pax log <commit-sha>")
+        else:
+            log(sys.argv[2])
             
     else:
         print(f"Unknown command: {command}")
