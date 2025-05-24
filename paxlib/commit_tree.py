@@ -8,22 +8,6 @@ PAX_DIR = ".pax"
 def commit_tree(tree_hash, message, parent=None, author="You <you@example.com>"):
     """
     Commit a tree object with a given message.
-
-    Parameters
-    ----------
-    tree_hash : str
-        The hash of the tree object to commit.
-    message : str
-        The commit message.
-    parent : str, optional
-        The hash of the parent commit. If not given, this is the initial commit.
-    author : str, optional
-        The author of the commit in the format "Name <email>"
-
-    Returns
-    -------
-    str
-        The hash of the new commit.
     """
     lines = [f"tree {tree_hash}"]
     if parent:
@@ -48,6 +32,17 @@ def commit_tree(tree_hash, message, parent=None, author="You <you@example.com>")
 
     with open(os.path.join(dir_name, file_name), "wb") as f:
         f.write(zlib.compress(full_commit))
+
+    # Update the current branch (HEAD)
+    head_path = os.path.join(PAX_DIR, "HEAD")
+    if os.path.exists(head_path):
+        with open(head_path, "r") as f:
+            ref = f.read().strip()
+        
+        if ref.startswith("ref:"):
+            ref_path = os.path.join(PAX_DIR, ref[5:])  # strip "ref: "
+            with open(ref_path, "w") as f:
+                f.write(sha1)
 
     print(sha1)
     return sha1
