@@ -5,7 +5,7 @@ from paxlib.write_tree import write_tree
 from paxlib.commit_tree import commit_tree
 from paxlib.log import log
 from paxlib.checkout import checkout
-
+from paxlib.branch import branch
 
 
 def main():
@@ -49,6 +49,9 @@ def main():
             print("Usage: pax checkout <commit-sha>")
         else:
             checkout(sys.argv[2])
+    
+    elif command == "branch":
+        branch(sys.argv[2])
     
     else:
         print(f"Unknown command: {command}")
