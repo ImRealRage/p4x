@@ -6,6 +6,25 @@ from paxlib.hash_object import hash_object
 PAX_DIR = ".pax"
 
 def write_tree(directory="."):
+    """
+    Write a tree object from the current directory's contents.
+
+    This function iterates through the files in the specified directory, 
+    skipping the .pax directory and any non-file entries. Each file is 
+    hashed using the `hash_object` function, and a tree object is created 
+    with a mode of 100644 for each file. The tree object is stored in the 
+    .pax/objects directory, and its SHA1 hash is returned.
+
+    Parameters
+    ----------
+    directory : str, optional
+        The path to the directory to process. Defaults to the current directory.
+
+    Returns
+    -------
+    str
+        The SHA1 hash of the created tree object.
+    """
     entries = []
 
     for entry in sorted(os.listdir(directory)):

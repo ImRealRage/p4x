@@ -2,6 +2,7 @@ import sys
 from paxlib.repo import init_repo
 from paxlib.hash_object import hash_object
 from paxlib.write_tree import write_tree
+from paxlib.commit_tree import commit_tree
 
 def main():
     if len(sys.argv) < 2:
@@ -22,6 +23,17 @@ def main():
     elif command == "write-tree":
         write_tree()
         
+    elif command == "commit-tree":
+        try:
+            tree_hash = sys.argv[2]
+            if sys.argv[3] == "-m":
+                message = sys.argv[4]
+                commit_tree(tree_hash, message)
+            else:
+                print("Usage: pax commit-tree <tree-hash> -m \"message\"")
+        except IndexError:
+            print("Usage: pax commit-tree <tree-hash> -m \"message\"")
+            
     else:
         print(f"Unknown command: {command}")
 
