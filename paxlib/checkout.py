@@ -26,28 +26,39 @@ def read_tree(tree_sha1):
         i = null_index + 21
     return entries
 
-def checkout(commit_sha1):
-    """
-    Checkout a specific commit by restoring files from the associated tree.
+def restore_tree(tree_sha1):
+    entries = read_tree(tree_sha1)
+    for mode, name, sha1 in entries:
+        blob_data = read_object(sha1)
+        blob_header_end = blob_data.find(b'\0')
+        file_content = blob_data[blob_header_end+1:]
+        with open(name, "wb") as f:
+            f.write(file_content)
+        print(f"Checked out {name}")
 
-    This function reads a commit object identified by the given SHA1 hash, 
-    extracts the tree SHA1, and then reads the corresponding tree object. 
-    The tree object contains entries for each file, which are read and 
-    written back to the working directory, effectively restoring the files
-    to the state of the specified commit.
+def resolve_ref(ref):
+    path = os.path.join(PAX_DIR, ref)
+    if os.path.exists(path):
+        with open(path) as f:
+            return f.read().strip()
+    return ref  # If not a ref, assume it's a raw commit hash
 
-    Parameters
-    ----------
-    commit_sha1 : str
-        The SHA1 hash of the commit to checkout.
-    """
-    # Step 1: Read the commit
+def checkout(target):
+    # Branch name or commit hash
+    ref_path = os.path.join(PAX_DIR, "refs", "heads", target)
+    if os.path.exists(ref_path):
+        with open(os.path.join(PAX_DIR, "HEAD"), "w") as f:
+            f.write(f"ref: refs/heads/{target}\n")
+        commit_sha1 = resolve_ref(f"refs/heads/{target}")
+    else:
+        commit_sha1 = target  # assume direct commit SHA
+
     commit_data = read_object(commit_sha1)
     header_end = commit_data.find(b'\0')
     content = commit_data[header_end+1:]
     lines = content.decode().split("\n")
-    tree_sha1 = None
 
+    tree_sha1 = None
     for line in lines:
         if line.startswith("tree "):
             tree_sha1 = line.split()[1]
@@ -57,12 +68,5 @@ def checkout(commit_sha1):
         print("No tree found in commit.")
         return
 
-    # Step 2: Read the tree and restore files
-    entries = read_tree(tree_sha1)
-    for mode, name, sha1 in entries:
-        blob_data = read_object(sha1)
-        blob_header_end = blob_data.find(b'\0')
-        file_content = blob_data[blob_header_end+1:]
-        with open(name, "wb") as f:
-            f.write(file_content)
-        print(f"Checked out {name}")
+    restore_tree(tree_sha1)
+    print(f"Checked out {target} ({commit_sha1[:7]})")

@@ -5,19 +5,31 @@ import time
 
 PAX_DIR = ".pax"
 
+def get_head_ref():
+    """Return the ref path from HEAD if it's a symbolic ref."""
+    head_path = os.path.join(PAX_DIR, "HEAD")
+    with open(head_path) as f:
+        content = f.read().strip()
+        if content.startswith("ref: "):
+            return content[5:]
+    return None  # Detached HEAD
+
+def update_ref(ref, sha):
+    """Write the given commit SHA to the specified ref."""
+    path = os.path.join(PAX_DIR, ref)
+    with open(path, "w") as f:
+        f.write(sha + "\n")
+
 def commit_tree(tree_hash, message, parent=None, author="You <you@example.com>"):
-    """
-    Commit a tree object with a given message.
-    """
     lines = [f"tree {tree_hash}"]
     if parent:
         lines.append(f"parent {parent}")
 
     timestamp = int(time.time())
-    timezone = time.strftime('%z') or '+0000'
+    date_str = time.strftime("%a %b %d %H:%M:%S %Y", time.localtime(timestamp))
 
-    lines.append(f"author {author} {timestamp} {timezone}")
-    lines.append(f"committer {author} {timestamp} {timezone}")
+    lines.append(f"author {author} {timestamp} +0000")
+    lines.append(f"committer {author} {timestamp} +0000")
     lines.append("")
     lines.append(message)
 
@@ -33,16 +45,10 @@ def commit_tree(tree_hash, message, parent=None, author="You <you@example.com>")
     with open(os.path.join(dir_name, file_name), "wb") as f:
         f.write(zlib.compress(full_commit))
 
-    # Update the current branch (HEAD)
-    head_path = os.path.join(PAX_DIR, "HEAD")
-    if os.path.exists(head_path):
-        with open(head_path, "r") as f:
-            ref = f.read().strip()
-        
-        if ref.startswith("ref:"):
-            ref_path = os.path.join(PAX_DIR, ref[5:])  # strip "ref: "
-            with open(ref_path, "w") as f:
-                f.write(sha1)
+    # Update branch ref if HEAD is symbolic
+    head_ref = get_head_ref()
+    if head_ref:
+        update_ref(head_ref, sha1)
 
     print(sha1)
     return sha1
