@@ -20,3 +20,18 @@ def init_repo():
         f.write("")
 
     print(f"Initialized empty Pax repository in {os.path.abspath(PAX_DIR)}")
+
+
+def get_head():
+    """
+    Returns the HEAD reference path, e.g., 'refs/heads/master'
+    """
+    head_path = os.path.join(PAX_DIR, "HEAD")
+    if not os.path.exists(head_path):
+        return None
+
+    with open(head_path) as f:
+        ref_line = f.read().strip()
+        if ref_line.startswith("ref:"):
+            return ref_line[5:]  # skip "ref: "
+        return None

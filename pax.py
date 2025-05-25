@@ -6,7 +6,7 @@ from paxlib.commit_tree import commit_tree
 from paxlib.log import log
 from paxlib.checkout import checkout
 from paxlib.branch import branch
-
+from paxlib.status import status
 
 def main():
     if len(sys.argv) < 2:
@@ -52,6 +52,9 @@ def main():
     
     elif command == "branch":
         branch(sys.argv[2])
+    
+    elif command == "status":
+        status()
     
     else:
         print(f"Unknown command: {command}")
