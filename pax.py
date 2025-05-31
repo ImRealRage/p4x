@@ -7,6 +7,7 @@ from paxlib.log import log
 from paxlib.checkout import checkout
 from paxlib.branch import branch
 from paxlib.status import status
+from paxlib.add import add
 
 def main():
     if len(sys.argv) < 2:
@@ -55,6 +56,9 @@ def main():
     
     elif command == "status":
         status()
+        
+    elif command == "add":
+        add(sys.argv[2])
     
     else:
         print(f"Unknown command: {command}")
